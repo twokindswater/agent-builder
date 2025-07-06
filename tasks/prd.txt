@@ -23,7 +23,7 @@ AI Agent와 MCP(Model Context Protocol)를 시각적 UI를 통해 쉽게 생성�
 - **Backend**: Python, Flask/FastAPI, WebSocket, REST API
 - **AI 연동**: OpenAI API, Anthropic API, Gemini API
 - **MCP 통합**: MCP 클라이언트/서버 구현, 프로토콜 호환성
-- **데이터베이스**: SQLite (개발용), PostgreSQL (프로덕션용)
+- **데이터베이스**: Supabase MCP 활용
 - **인프라**: Docker, Heroku/Vercel (배포)
 - **인증**: 간단한 세션 기반 인증 (MVP 수준)
 

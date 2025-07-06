@@ -2,7 +2,7 @@
 > PRD 섹션: [tasks/prd.txt](mdc:tasks/prd.txt)의 Technical Architecture 참조
 
 ## 우선순위: High
-- [ ] (High) 백엔드 API 프레임워크 구현 - Flask/FastAPI 기반 REST API 서버 구축
+- [ ] (High) 백엔드 API 프레임워크 구현 - FastAPI 기반 REST API 서버 구축
   - 의존성: 백엔드 프로젝트 초기 설정 완료
   - 완료 기준: /api/v1/agents, /api/v1/workflows, /api/v1/mcp 엔드포인트 기본 구조 생성
   - 산출물: backend/routes/agents.py, backend/routes/workflows.py, backend/routes/mcp.py
