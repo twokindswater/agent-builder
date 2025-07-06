@@ -1,0 +1,56 @@
+# Overview
+AI Agent와 MCP(Model Context Protocol)를 시각적 UI를 통해 쉽게 생성하고, 직관적인 워크플로우 빌더를 통해 복잡한 AI 워크플로우를 구성할 수 있는 서비스입니다. 개발자와 비개발자 모두가 AI Agent를 쉽게 만들고, MCP 서버를 연결하여 강력한 AI 워크플로우를 구축할 수 있도록 합니다.
+
+# Core Features
+- **AI Agent 생성기**: 템플릿 기반 AI Agent 생성 및 커스터마이징
+- **MCP 서버 연결**: 기존 MCP 서버 연결 및 새로운 MCP 서버 생성 지원
+- **시각적 워크플로우 빌더**: 드래그&드롭 방식의 직관적인 워크플로우 구성
+- **실시간 실행 및 모니터링**: 워크플로우 실행 상태 및 결과 실시간 확인
+- **템플릿 라이브러리**: 다양한 AI Agent 및 워크플로우 템플릿 제공
+- **협업 기능**: 팀원과 워크플로우 공유 및 협업
+
+# User Experience
+- **개발자 페르소나**: AI Agent 개발자, MCP 서버 개발자, 시스템 통합자
+- **비개발자 페르소나**: 비즈니스 분석가, 프로덕트 매니저, AI 워크플로우 사용자
+- **주요 사용자 플로우**:
+  1. AI Agent 생성: 템플릿 선택 → 설정 구성 → 테스트 → 배포
+  2. MCP 서버 연결: 서버 정보 입력 → 연결 테스트 → 기능 확인
+  3. 워크플로우 구성: 노드 추가 → 연결 설정 → 파라미터 구성 → 실행
+- **UI/UX 고려사항**: 직관적인 드래그&드롭, 실시간 피드백, 반응형 디자인
+
+# Technical Architecture
+- **Frontend**: React, Next.js, TypeScript, TailwindCSS, React Flow (워크플로우 빌더)
+- **Backend**: Node.js, Express, WebSocket, REST API, GraphQL
+- **AI 연동**: OpenAI API, Anthropic API, Gemini API, ADK(https://google.github.io/adk-docs/)
+- **MCP 통합**: MCP 클라이언트/서버 구현, 프로토콜 호환성
+- **데이터베이스**: Supabase, Redis (캐싱)
+- **인프라**: Docker, AWS/GCP, Vercel (배포)
+- **인증**: OAuth2, JWT, Supabase Auth
+
+# Development Roadmap
+- **MVP (Phase 1)**: 기본 AI Agent 생성, MCP 서버 연결, 간단한 워크플로우 빌더
+- **v1.0 (Phase 2)**: 고급 워크플로우 기능, 템플릿 시스템, 실시간 실행
+- **v1.1 (Phase 3)**: 협업 기능, 고급 MCP 서버 생성, API 마켓플레이스
+- **v1.2+ (Phase 4)**: AI 모델 훈련, 고급 분석, 엔터프라이즈 기능
+
+# Logical Dependency Chain
+1. **기본 인프라**: 사용자 인증, 프로젝트 관리, 기본 UI 프레임워크
+2. **AI Agent 생성**: 템플릿 시스템, Agent 설정 UI, 기본 Agent 생성
+3. **MCP 통합**: MCP 클라이언트 구현, 서버 연결, 프로토콜 호환성
+4. **워크플로우 빌더**: 노드 시스템, 연결 로직, 파라미터 관리
+5. **실행 엔진**: 워크플로우 실행, 상태 관리, 결과 처리
+6. **고급 기능**: 템플릿 라이브러리, 협업, 분석 대시보드
+
+# Risks and Mitigations
+- **기술적 리스크**: MCP 프로토콜 복잡성 → 단계적 구현 및 테스트
+- **성능 리스크**: 복잡한 워크플로우 실행 → 비동기 처리 및 큐 시스템
+- **보안 리스크**: AI API 키 및 민감 데이터 → 암호화 저장 및 접근 제어
+- **확장성 리스크**: 사용자 증가 → 마이크로서비스 아키텍처 및 로드 밸런싱
+- **호환성 리스크**: 다양한 MCP 서버 → 표준화된 인터페이스 및 어댑터 패턴
+
+# Appendix
+- **MCP 프로토콜**: Model Context Protocol v1.0 스펙 준수
+- **AI 모델 지원**: GPT-4, Claude, Gemini, 커스텀 모델
+- **워크플로우 노드 타입**: AI Agent, MCP Tool, 조건문, 반복문, 데이터 처리
+- **템플릿 카테고리**: 챗봇, 데이터 분석, 자동화, 크리에이티브, 비즈니스 프로세스 
+
