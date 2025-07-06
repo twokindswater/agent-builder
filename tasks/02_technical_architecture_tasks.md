@@ -7,7 +7,7 @@
   - 완료 기준: /api/v1/agents, /api/v1/workflows, /api/v1/mcp 엔드포인트 기본 구조 생성
   - 산출물: backend/routes/agents.py, backend/routes/workflows.py, backend/routes/mcp.py
 
-- [ ] (High) 데이터베이스 모델 구현 - SQLAlchemy ORM 기반 데이터 모델 정의
+- [ ] (High) 데이터베이스 모델 구현 - 데이터 모델 정의
   - 의존성: 데이터베이스 초기 설정 완료
   - 완료 기준: User, Agent, Workflow, MCPServer 모델 클래스 생성 및 관계 설정
   - 산출물: backend/models/user.py, backend/models/agent.py, backend/models/workflow.py, backend/models/mcp_server.py

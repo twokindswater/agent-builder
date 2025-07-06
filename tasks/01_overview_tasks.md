@@ -7,20 +7,20 @@
   - 완료 기준: 프로젝트 루트 폴더에 frontend/, backend/, docs/, tests/ 폴더 생성
   - 산출물: 프로젝트 폴더 구조
 
-- [ ] (High) 백엔드 프로젝트 초기 설정 - Conda 환경(Python 3.12), FastAPI 설치, 기본 구조 생성
+- [ ] (High) 백엔드 프로젝트 초기 설정 - Supabase 설정 및 FastAPI 기본 구조 생성
   - 의존성: 프로젝트 기본 구조 설정 완료
-  - 완료 기준: backend/app.py 파일에서 "Hello World" API 엔드포인트 실행 가능
-  - 산출물: backend/requirements.txt, backend/app.py, backend/config.py
+  - 완료 기준: Supabase 데이터베이스 연결 및 기본 API 엔드포인트 실행 가능
+  - 산출물: backend/supabase_config.py, backend/app.py, backend/config.py
 
 - [ ] (High) 프론트엔드 프로젝트 초기 설정 - Vite, React 설치 및 기본 구조 생성
   - 의존성: 프로젝트 기본 구조 설정 완료
   - 완료 기준: frontend/src/main.tsx에서 "AI Agent Builder" 제목과 기본 네비게이션 표시
   - 산출물: frontend/src/main.tsx, frontend/src/App.tsx, frontend/src/index.html, frontend/src/styles/style.css
 
-- [ ] (High) 데이터베이스 초기 설정 - SQLite 설정, 기본 테이블 스키마 설계
+- [ ] (High) 데이터베이스 초기 설정 - Supabase 데이터베이스 설정 및 기본 테이블 스키마 설계
   - 의존성: 백엔드 프로젝트 초기 설정 완료
-  - 완료 기준: users, agents, workflows 테이블 생성 및 연결 테스트 성공
-  - 산출물: backend/database.py, backend/models.py, backend/schema.sql
+  - 완료 기준: Supabase에서 users, agents, workflows 테이블 생성 및 연결 테스트 성공
+  - 산출물: backend/supabase_schema.sql, backend/models.py
 
 ## 우선순위: Medium
 - [ ] (Medium) 개발 환경 설정 - Docker 컨테이너 설정, 로컬 개발 서버 구성
