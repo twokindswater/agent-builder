@@ -18,19 +18,19 @@ AI Agent와 MCP(Model Context Protocol)를 시각적 UI를 통해 쉽게 생성�
   3. 워크플로우 구성: 노드 추가 → 연결 설정 → 파라미터 구성 → 실행
 - **UI/UX 고려사항**: 직관적인 드래그&드롭, 실시간 피드백, 반응형 디자인
 
-# Technical Architecture
-- **Frontend**: React, Next.js, TypeScript, TailwindCSS, React Flow (워크플로우 빌더)
-- **Backend**: Node.js, Express, WebSocket, REST API, GraphQL
-- **AI 연동**: OpenAI API, Anthropic API, Gemini API, ADK(https://google.github.io/adk-docs/)
+# Technical Architecture (MVP)
+- **Frontend**: HTML, CSS, JavaScript, Bootstrap (대중적이고 학습하기 쉬운 기술)
+- **Backend**: Python, Flask/FastAPI, WebSocket, REST API
+- **AI 연동**: OpenAI API, Anthropic API, Gemini API
 - **MCP 통합**: MCP 클라이언트/서버 구현, 프로토콜 호환성
-- **데이터베이스**: Supabase, Redis (캐싱)
-- **인프라**: Docker, AWS/GCP, Vercel (배포)
-- **인증**: OAuth2, JWT, Supabase Auth
+- **데이터베이스**: SQLite (개발용), PostgreSQL (프로덕션용)
+- **인프라**: Docker, Heroku/Vercel (배포)
+- **인증**: 간단한 세션 기반 인증 (MVP 수준)
 
-# Development Roadmap
-- **MVP (Phase 1)**: 기본 AI Agent 생성, MCP 서버 연결, 간단한 워크플로우 빌더
-- **v1.0 (Phase 2)**: 고급 워크플로우 기능, 템플릿 시스템, 실시간 실행
-- **v1.1 (Phase 3)**: 협업 기능, 고급 MCP 서버 생성, API 마켓플레이스
+# Development Roadmap (MVP 우선)
+- **MVP (Phase 1)**: 기본 AI Agent 생성 UI, 간단한 MCP 서버 연결, 기본 워크플로우 구성
+- **v1.0 (Phase 2)**: 드래그&드롭 워크플로우 빌더, 템플릿 시스템, 실시간 실행
+- **v1.1 (Phase 3)**: 고급 MCP 서버 생성, 협업 기능, API 마켓플레이스
 - **v1.2+ (Phase 4)**: AI 모델 훈련, 고급 분석, 엔터프라이즈 기능
 
 # Logical Dependency Chain
