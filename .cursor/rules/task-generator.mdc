@@ -1,5 +1,5 @@
 ---
-description: 요구사항/PRD를 기반으로 구체적이고 실행 가능한 sub-task 또는 TODO 리스트로 세분화하는 규칙
+description: 요구사항/PRD를 기반으로 구체적이고 실행 가능한 sub-task 또는 TODO 리스트로 세분화하여 개발자들이 수행 할 수 있는 구체적인 규칙.
 globs: **/*
 alwaysApply: true
 ---
@@ -8,46 +8,45 @@ alwaysApply: true
   - 각 TODO는 명확한 목표/완료 기준(Definition of Done)을 가져야 함
   - 의존성(선행/후행 관계) 및 우선순위 표시
   - 가능한 한 작은 단위로 쪼개되, 실제 개발자가 바로 실행할 수 있는 수준으로 작성
-  - [prd-generator.mdc]를 통해 생성된 PRD를 기반으로 세분화 수행
-  - **PRD 내용이 부족하거나 불명확한 경우, 사용자에게 추가 정보를 요청하여 완성도 높은 task 생성**
+  - [tasks/prd.txt](mdc:tasks/prd.txt) 문서를 기반으로 세분화 수행
+  - **요구사항 내용이 부족하거나 불명확한 경우, 사용자에게 추가 정보를 요청하여 완성도 높은 task 생성**
 
 - **작성 가이드**
   - "구현", "테스트", "문서화" 등 역할별로 분리
-  - 각 sub-task에 예상 소요 시간/난이도(High/Medium/Low) 표기 가능
   - 반복적/유사한 작업은 템플릿화하여 재사용
-  - PRD의 각 섹션별로 별도 마크다운 파일 생성
+  - 요구사항의 각 섹션별로 별도 마크다운 파일 생성
   - **정보 부족 시 사용자에게 질문하여 완성도 높은 task 생성**
 
-- **PRD 기반 세분화 프로세스 (신규 개발)**
-  1. [tasks/prd.txt](mdc:tasks/prd.txt) 파일을 읽고 분석
-  2. **PRD 내용 검증**: 부족하거나 불명확한 부분이 있는지 확인
+- **요구사항 기반 세분화 프로세스 (신규 개발)**
+  1. 요구사항 문서(prd.txt, requirements.md, specs.txt 등)를 읽고 분석
+  2. **요구사항 내용 검증**: 부족하거나 불명확한 부분이 있는지 확인
   3. **추가 정보 요청**: 필요시 사용자에게 구체적인 질문을 통해 정보 보완
-  4. PRD의 각 주요 섹션별로 별도 TODO 파일 생성 (수행 순서 고려)
-  5. 파일명 규칙: `tasks/[순서]_[섹션명]_tasks.md` (예: `tasks/03_core_features_tasks.md`)
-  6. 각 TODO 항목에 PRD 섹션 참조 및 의존성 명시
+  4. 요구사항의 각 주요 섹션별로 별도 TODO 파일 생성 (수행 순서 고려)
+  5. 파일명 규칙: `[작업폴더]/[순서]_[섹션명]_tasks.md` (예: `tasks/03_core_features_tasks.md`)
+  6. 각 TODO 항목에 요구사항 섹션 참조 및 의존성 명시
 
 - **생성할 TODO 파일 구조 (신규 개발 - 수행 순서별)**
-  - `tasks/01_overview_tasks.md`: 프로젝트 개요 및 기본 설정 관련 (1단계)
-  - `tasks/02_technical_architecture_tasks.md`: 기술 아키텍처 관련 (2단계)
-  - `tasks/03_core_features_tasks.md`: 핵심 기능 구현 관련 (3단계)
-  - `tasks/04_user_experience_tasks.md`: UX/UI 관련 (4단계)
-  - `tasks/05_development_roadmap_tasks.md`: 개발 로드맵 및 단계별 구현 (5단계)
-  - `tasks/06_risks_mitigations_tasks.md`: 리스크 관리 및 대응 방안 (6단계)
+  - `[작업폴더]/01_overview_tasks.md`: 프로젝트 개요 및 기본 설정 관련 (1단계)
+  - `[작업폴더]/02_technical_architecture_tasks.md`: 기술 아키텍처 관련 (2단계)
+  - `[작업폴더]/03_core_features_tasks.md`: 핵심 기능 구현 관련 (3단계)
+  - `[작업폴더]/04_user_experience_tasks.md`: UX/UI 관련 (4단계)
+  - `[작업폴더]/05_development_roadmap_tasks.md`: 개발 로드맵 및 단계별 구현 (5단계)
+  - `[작업폴더]/06_risks_mitigations_tasks.md`: 리스크 관리 및 대응 방안 (6단계)
 
 - **리팩토링/이슈 해결용 세분화 프로세스**
   1. 기존 코드베이스 분석 및 문제점 파악
   2. **문제점 검증**: 분석 결과가 충분한지 확인
   3. **추가 정보 요청**: 필요시 사용자에게 구체적인 질문을 통해 정보 보완
   4. 리팩토링/이슈 해결 범위 정의
-  5. 파일명 규칙: `tasks/refactor_[영역]_tasks.md` 또는 `tasks/issue_[번호]_tasks.md`
+  5. 파일명 규칙: `[작업폴더]/refactor_[영역]_tasks.md` 또는 `[작업폴더]/issue_[번호]_tasks.md`
   6. 각 TODO 항목에 기존 코드 참조 및 변경 사유 명시
 
 - **생성할 TODO 파일 구조 (리팩토링/이슈 해결)**
-  - `tasks/refactor_[영역]_tasks.md`: 특정 영역 리팩토링 (예: `tasks/refactor_auth_tasks.md`)
-  - `tasks/issue_[번호]_tasks.md`: 특정 이슈 해결 (예: `tasks/issue_123_tasks.md`)
-  - `tasks/bugfix_[영역]_tasks.md`: 버그 수정 (예: `tasks/bugfix_api_tasks.md`)
-  - `tasks/performance_[영역]_tasks.md`: 성능 개선 (예: `tasks/performance_database_tasks.md`)
-  - `tasks/security_[영역]_tasks.md`: 보안 개선 (예: `tasks/security_auth_tasks.md`)
+  - `[작업폴더]/refactor_[영역]_tasks.md`: 특정 영역 리팩토링 (예: `refactor_auth_tasks.md`)
+  - `[작업폴더]/issue_[번호]_tasks.md`: 특정 이슈 해결 (예: `issue_123_tasks.md`)
+  - `[작업폴더]/bugfix_[영역]_tasks.md`: 버그 수정 (예: `bugfix_api_tasks.md`)
+  - `[작업폴더]/performance_[영역]_tasks.md`: 성능 개선 (예: `performance_database_tasks.md`)
+  - `[작업폴더]/security_[영역]_tasks.md`: 보안 개선 (예: `security_auth_tasks.md`)
 
 - **TODO 파일 작성 형식**
   ```markdown
@@ -57,8 +56,6 @@ alwaysApply: true
   ## 우선순위: High
   - [ ] (High) [구체적인 작업명] - [완료 기준]
     - 의존성: [의존 작업 ID 또는 설명]
-    - 예상 소요시간: [시간]
-    - 담당자: [역할]
   
   ## 우선순위: Medium
   - [ ] (Medium) [구체적인 작업명] - [완료 기준]
@@ -73,51 +70,39 @@ alwaysApply: true
   > PRD 섹션: [tasks/prd.txt](mdc:tasks/prd.txt)의 Core Features 참조
   
   ## 우선순위: High
-  - [ ] (High) AI Agent 생성기 UI 컴포넌트 설계 - 템플릿 선택부터 배포까지 완전한 플로우 구현
+  - [ ] (High) [핵심 기능 1] UI 컴포넌트 설계 - [완료 기준]
     - 의존성: 기본 인프라 설정 완료
-    - 예상 소요시간: 3일
-    - 담당자: Frontend 개발자
   
-  - [ ] (High) MCP 서버 연결 기능 구현 - 기존 MCP 서버 연결 및 테스트 기능
-    - 의존성: MCP 클라이언트 구현 완료
-    - 예상 소요시간: 2일
-    - 담당자: Backend 개발자
+  - [ ] (High) [핵심 기능 2] 구현 - [완료 기준]
+    - 의존성: [선행 작업] 완료
   ```
 
 - **예시 (리팩토링)**
   ```markdown
-  # Auth Refactor Tasks
-  > 기존 코드: [src/auth/](mdc:src/auth/) 폴더의 인증 로직 개선
+  # [영역] Refactor Tasks
+  > 기존 코드: [해당 폴더/파일]의 [기능] 개선
   
   ## 우선순위: High
-  - [ ] (High) 인증 상태 관리 로직 분리 - Redux에서 Zustand로 마이그레이션
-    - 기존 파일: [src/auth/authSlice.js](mdc:src/auth/authSlice.js)
-    - 변경 사유: 성능 개선 및 코드 복잡도 감소
-    - 예상 소요시간: 1일
-    - 담당자: Frontend 개발자
+  - [ ] (High) [기능] 로직 분리 - [기존 방식]에서 [새로운 방식]으로 마이그레이션
+    - 기존 파일: [파일 경로]
+    - 변경 사유: [개선 목적]
   
-  - [ ] (Medium) JWT 토큰 갱신 로직 개선 - 자동 갱신 및 에러 처리 강화
-    - 기존 파일: [src/auth/tokenManager.js](mdc:src/auth/tokenManager.js)
-    - 변경 사유: 보안 강화 및 사용자 경험 개선
-    - 예상 소요시간: 0.5일
-    - 담당자: Backend 개발자
+  - [ ] (Medium) [기능] 개선 - [구체적인 개선 내용]
+    - 기존 파일: [파일 경로]
+    - 변경 사유: [개선 목적]
   ```
 
 - **예시 (이슈 해결)**
   ```markdown
-  # Issue #123 Tasks
-  > 이슈: API 응답 시간이 5초 이상 걸리는 문제
+  # Issue #[번호] Tasks
+  > 이슈: [문제 설명]
   
   ## 우선순위: High
-  - [ ] (High) API 응답 시간 분석 - 성능 병목 지점 파악
-    - 관련 파일: [src/api/userService.js](mdc:src/api/userService.js)
-    - 분석 도구: Chrome DevTools, Lighthouse
-    - 예상 소요시간: 0.5일
-    - 담당자: Backend 개발자
+  - [ ] (High) [문제] 분석 - [분석 목표]
+    - 관련 파일: [파일 경로]
+    - 분석 도구: [도구명]
   
-  - [ ] (High) 데이터베이스 쿼리 최적화 - N+1 문제 해결
-    - 기존 쿼리: [src/api/userService.js:45-52](mdc:src/api/userService.js)
-    - 개선 방안: JOIN 쿼리로 변경
-    - 예상 소요시간: 1일
-    - 담당자: Backend 개발자
+  - [ ] (High) [해결 방안] - [구체적인 해결 내용]
+    - 기존 코드: [파일 경로:라인]
+    - 개선 방안: [개선 내용]
   ```
