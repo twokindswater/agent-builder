@@ -34,6 +34,52 @@
 - Getting as quickly as possible to something usable/visible front end that works
 - Properly pacing and scoping each feature so it is atomic but can also be built upon and improved as development approaches]
 
+# UI/UX requirements
+- **Design System & Style Guide**:
+  - **Color Palette**: Define primary, secondary, and state-specific colors (e.g., success, error, warning).
+  - **Typography**: Specify fonts, sizes, and weights for headings, body text, and captions.
+  - **Iconography**: Define the icon library (e.g., Material Icons) and usage guidelines.
+  - **Component Styles**: Detail the design and states (hover, disabled) for core components like buttons, inputs, and modals.
+- **User Interaction & Feedback**:
+  - **Loading States**: Specify loading indicators like skeletons or spinners.
+  - **Action Feedback**: Define how to display success/error feedback using toasts or modals.
+  - **Animations**: Outline guidelines for smooth transitions and animations.
+- **Responsive & Accessibility**:
+  - **Breakpoints**: Define responsive breakpoints for desktop, tablet, and mobile.
+  - **Accessibility (WCAG)**: Specify compliance with accessibility standards, including ARIA attributes and keyboard navigation.
+
+# Service & Directory Structure (Microservice-oriented)
+[This section outlines the project's structure from a microservice perspective, defining the components and their corresponding directory layout to guide development.]
+
+- **Backend (e.g., FastAPI)**: Organized by service domains.
+  - `app/services/`: Each subdirectory represents a microservice component.
+    - `auth/`: Handles user authentication and authorization.
+      - `router.py`: API routes for `/auth/...`
+      - `service.py`: Core business logic for authentication.
+      - `schemas.py`: Pydantic schemas for request/response validation.
+    - `agent/`: Manages the lifecycle of AI Agents.
+      - `router.py`: API routes for `/agents/...`
+      - `service.py`: CRUD logic for agents.
+      - `models.py`: Database models (e.g., SQLAlchemy).
+    - `workflow/`: Manages workflow creation, execution, and monitoring.
+      - `router.py`: API routes for `/workflows/...`
+      - `service.py`: Business logic for workflow management.
+      - `executor.py`: The engine responsible for running workflows.
+  - `app/core/`: Shared components and utilities used across services.
+    - `database.py`: Database connection and session management.
+    - `config.py`: Centralized configuration settings.
+
+- **Frontend (e.g., React)**: Organized by features and component types.
+  - `src/pages/`: Top-level components representing a full page view (e.g., `DashboardPage.tsx`, `LoginPage.tsx`).
+  - `src/components/`: Reusable UI components.
+    - `common/`: General-purpose components like `Button.tsx`, `Modal.tsx`.
+    - `features/`: Components specific to a feature domain.
+      - `agent/`: Components for agent creation, listing, etc.
+      - `workflow/`: Components for the workflow builder, node editor, etc.
+  - `src/services/` or `src/api/`: Functions for making API calls to the backend services.
+    - `authApi.ts`, `agentApi.ts`, `workflowApi.ts`.
+  - `src/store/`: Global state management setup (e.g., Redux, Zustand).
+
 # Risks and Mitigations  
 [Identify potential risks and how they'll be addressed:
 - Technical challenges
