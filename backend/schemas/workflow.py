@@ -1,63 +1,49 @@
 """
-Workflow related Pydantic schemas
+워크플로우 스키마
 """
-
-from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any, List
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import Dict, Optional, List, Any
+from pydantic import BaseModel, UUID4
 
 class WorkflowBase(BaseModel):
-    name: str = Field(..., min_length=1, max_length=255)
+    """워크플로우 기본 스키마"""
+    name: str
     description: Optional[str] = None
-    definition: Dict[str, Any] = Field(..., description="Workflow node and connection definition")
-    version: int = 1
-    is_active: bool = True
+    definition: Dict[str, Any]
 
 class WorkflowCreate(WorkflowBase):
-    pass
+    """워크플로우 생성 스키마"""
+    agent_id: UUID4
 
-class WorkflowUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=1, max_length=255)
-    description: Optional[str] = None
+class WorkflowUpdate(WorkflowBase):
+    """워크플로우 수정 스키마"""
+    name: Optional[str] = None
     definition: Optional[Dict[str, Any]] = None
-    version: Optional[int] = None
-    is_active: Optional[bool] = None
 
-class WorkflowResponse(WorkflowBase):
-    id: uuid.UUID
-    user_id: uuid.UUID
+class WorkflowDB(WorkflowBase):
+    """워크플로우 DB 스키마"""
+    id: UUID4
+    agent_id: UUID4
+    status: str
     created_at: datetime
     updated_at: datetime
-    
-    model_config = {"from_attributes": True}
 
-class WorkflowExecutionBase(BaseModel):
-    session_id: str
-    status: str = "pending"
-    input_data: Optional[Dict[str, Any]] = None
-    output_data: Optional[Dict[str, Any]] = None
-    execution_logs: List[Dict[str, Any]] = []
-    error_message: Optional[str] = None
+    class Config:
+        from_attributes = True
 
-class WorkflowExecutionCreate(BaseModel):
-    input_data: Dict[str, Any]
+class WorkflowResponse(BaseModel):
+    """워크플로우 응답 스키마"""
+    data: WorkflowDB
 
-class WorkflowExecutionResponse(WorkflowExecutionBase):
-    id: uuid.UUID
-    workflow_id: uuid.UUID
-    started_at: datetime
-    finished_at: Optional[datetime] = None
-    
-    model_config = {"from_attributes": True}
-
-class WorkflowExecutionWithWorkflow(WorkflowExecutionResponse):
-    workflow: WorkflowResponse
+class WorkflowListResponse(BaseModel):
+    """워크플로우 목록 응답 스키마"""
+    data: List[WorkflowDB]
 
 class WorkflowExecuteRequest(BaseModel):
-    input_data: Dict[str, Any]
+    """워크플로우 실행 요청 스키마"""
+    input: Dict[str, Any]
 
 class WorkflowExecuteResponse(BaseModel):
-    success: bool
-    execution_id: uuid.UUID
-    message: str 
+    """워크플로우 실행 응답 스키마"""
+    data: Dict[str, Any] 

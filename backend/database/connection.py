@@ -4,73 +4,87 @@ Database connection configuration
 
 import psycopg2
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
 from contextlib import contextmanager
+from psycopg2.pool import SimpleConnectionPool
 from config.database import DB_CONFIG
+from typing import Generator
 
-# psycopg2용 설정에서 echo 옵션 제거
-DB_CONN_CONFIG = {k: v for k, v in DB_CONFIG.items() if k != 'echo'}
+# SQLAlchemy 설정
+SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['dbname']}"
 
-@contextmanager
-def get_db_connection():
-    """데이터베이스 연결 생성"""
-    connection = None
-    try:
-        connection = psycopg2.connect(**DB_CONN_CONFIG)
-        yield connection
-    finally:
-        if connection is not None:
-            connection.close()
-
-@contextmanager
-def get_db_cursor(commit=False):
-    """데이터베이스 커서 생성"""
-    connection = None
-    cursor = None
-    try:
-        connection = psycopg2.connect(**DB_CONN_CONFIG)
-        cursor = connection.cursor()
-        yield cursor
-        if commit:
-            connection.commit()
-    finally:
-        if cursor is not None:
-            cursor.close()
-        if connection is not None:
-            connection.close()
-
-# SQLAlchemy 설정 (ORM 사용시)
-DATABASE_URL = f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['dbname']}"
-engine = create_engine(DATABASE_URL, echo=DB_CONFIG.get('echo', False))
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 Base = declarative_base()
 
-def get_db():
-    """SQLAlchemy 세션 의존성"""
+def get_db() -> Generator[Session, None, None]:
+    """
+    데이터베이스 세션 생성
+    """
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
 
-def test_connection():
-    """데이터베이스 연결 테스트"""
+def get_test_db() -> Generator[Session, None, None]:
+    """
+    테스트용 데이터베이스 세션 생성
+    """
+    # 실제 환경에서는 테스트 데이터베이스를 사용해야 하지만,
+    # 현재는 개발 단계이므로 동일한 데이터베이스를 사용
+    return get_db()
+
+# 데이터베이스 연결 설정
+DB_CONN_CONFIG = {
+    'dbname': DB_CONFIG['dbname'],
+    'user': DB_CONFIG['user'],
+    'password': DB_CONFIG['password'],
+    'host': DB_CONFIG['host'],
+    'port': DB_CONFIG['port'],
+    'sslmode': 'require'  # SSL 모드 필수
+}
+
+# 연결 풀 생성 (최소 1개, 최대 20개의 연결 유지)
+pool = SimpleConnectionPool(
+    minconn=1,
+    maxconn=20,
+    **DB_CONN_CONFIG
+)
+
+@contextmanager
+def get_db_cursor(commit=False):
+    """데이터베이스 커서 생성 (연결 풀 사용)"""
+    conn = None
     try:
-        with get_db_cursor() as cursor:
-            cursor.execute("SELECT NOW();")
-            result = cursor.fetchone()
-            print("데이터베이스 연결 성공!")
-            print("현재 시간:", result[0])
-            return True
+        # 풀에서 연결 가져오기
+        conn = pool.getconn()
+        cur = conn.cursor()
+        yield cur
+        if commit:
+            conn.commit()
+        cur.close()
     except Exception as e:
-        print(f"데이터베이스 연결 실패: {e}")
-        return False
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            # 연결을 풀로 반환
+            pool.putconn(conn)
+
+def close_pool():
+    """애플리케이션 종료 시 연결 풀 정리"""
+    if pool:
+        pool.closeall()
 
 def create_tables():
     """데이터베이스 테이블 생성"""
     try:
         with get_db_cursor(commit=True) as cursor:
+            
             # users 테이블
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS users (
@@ -79,6 +93,11 @@ def create_tables():
                     created_at TIMESTAMPTZ DEFAULT NOW(),
                     updated_at TIMESTAMPTZ DEFAULT NOW()
                 );
+                
+                -- Mock 사용자 추가 (이미 존재하지 않는 경우)
+                INSERT INTO users (id, email)
+                VALUES ('00000000-0000-0000-0000-000000000001', 'test@example.com')
+                ON CONFLICT (id) DO NOTHING;
             """)
             
             # agents 테이블
@@ -88,6 +107,7 @@ def create_tables():
                     user_id UUID NOT NULL REFERENCES users(id),
                     name TEXT NOT NULL,
                     description TEXT,
+                    status TEXT NOT NULL DEFAULT 'active',
                     created_at TIMESTAMPTZ DEFAULT NOW(),
                     updated_at TIMESTAMPTZ DEFAULT NOW()
                 );
@@ -97,6 +117,7 @@ def create_tables():
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS mcp_servers (
                     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    user_id UUID NOT NULL REFERENCES users(id),
                     name TEXT NOT NULL,
                     url TEXT NOT NULL,
                     api_key TEXT NOT NULL,
@@ -125,7 +146,8 @@ def create_tables():
                     agent_id UUID NOT NULL REFERENCES agents(id),
                     name TEXT NOT NULL,
                     description TEXT,
-                    status TEXT NOT NULL,
+                    definition JSONB,
+                    status TEXT NOT NULL DEFAULT 'active',
                     created_at TIMESTAMPTZ DEFAULT NOW(),
                     updated_at TIMESTAMPTZ DEFAULT NOW()
                 );

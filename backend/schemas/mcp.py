@@ -13,18 +13,19 @@ class MCPServerBase(BaseModel):
     description: Optional[str] = None
 
 class MCPServerCreate(MCPServerBase):
-    token: Optional[str] = None
+    api_key: str = Field(..., min_length=1)
 
 class MCPServerUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     url: Optional[str] = Field(None, min_length=1, max_length=500)
     description: Optional[str] = None
-    token: Optional[str] = None
+    api_key: Optional[str] = Field(None, min_length=1)
 
 class MCPServerResponse(MCPServerBase):
     id: uuid.UUID
-    user_id: uuid.UUID
-    is_connected: bool
+    api_key: str
+    user_id: Optional[uuid.UUID] = None
+    is_connected: bool = False
     last_connected_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime

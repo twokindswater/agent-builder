@@ -11,21 +11,20 @@ from dotenv import load_dotenv
 # 환경 변수 파일 로드
 load_dotenv()
 
-# Supabase 데이터베이스 설정
-DBNAME = os.getenv("DBNAME", "postgres")
-USER = os.getenv("DB_USER", "postgres")
+# Supabase 데이터베이스 설정 (Session Pooler 사용)
+USER = os.getenv("DB_USER", "")
 PASSWORD = os.getenv("DB_PASSWORD", "")
 HOST = os.getenv("DB_HOST", "")
-PORT = os.getenv("DB_PORT", "5432")
+PORT = os.getenv("DB_PORT", "")
+DBNAME = os.getenv("DB_NAME", "postgres")
 
 class DatabaseConfig(BaseModel):
     """데이터베이스 설정"""
-    dbname: str = DBNAME
     user: str = USER
     password: str = PASSWORD
     host: str = HOST
     port: str = PORT
-    echo: bool = os.getenv("DATABASE_ECHO", "false").lower() == "true"
+    dbname: str = DBNAME
 
 # 설정 출력
 DB_CONFIG = DatabaseConfig().dict()

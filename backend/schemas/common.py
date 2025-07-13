@@ -1,17 +1,18 @@
 """
-Common response schemas
+Common schemas used across the application
 """
 
+from typing import TypeVar, Generic, Optional, Dict, Any
 from pydantic import BaseModel
-from typing import Optional, Dict, Any, Generic, TypeVar
 
-T = TypeVar('T')
+DataT = TypeVar("DataT")
+T = TypeVar("T")
 
-class APIResponse(BaseModel, Generic[T]):
+class APIResponse(BaseModel, Generic[DataT]):
+    """API 공통 응답 스키마"""
     success: bool
-    data: Optional[T] = None
-    message: str
-    error: Optional[Dict[str, Any]] = None
+    data: Optional[DataT] = None
+    error: Optional[str] = None
 
 class ErrorResponse(BaseModel):
     success: bool = False
@@ -24,9 +25,7 @@ class ErrorDetail(BaseModel):
     details: Optional[Dict[str, Any]] = None
 
 class PaginatedResponse(BaseModel, Generic[T]):
-    success: bool
-    data: list[T]
-    message: str
+    items: list[T]
     total: int
     page: int
     size: int

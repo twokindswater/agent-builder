@@ -1,0 +1,16 @@
+-- users 테이블 생성
+CREATE TABLE IF NOT EXISTS users (
+    id UUID PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- mock 사용자 추가
+INSERT INTO users (id, email, created_at, updated_at)
+VALUES (
+    '00000000-0000-0000-0000-000000000001',
+    'mock.user@example.com',
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+) ON CONFLICT (id) DO NOTHING; 
