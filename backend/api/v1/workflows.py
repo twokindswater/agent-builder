@@ -8,14 +8,16 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
 from database.connection import get_db
-from models import Workflow
+from models import Workflow, Agent
 from schemas.workflow import (
     WorkflowCreate,
     WorkflowUpdate,
     WorkflowResponse,
     WorkflowListResponse,
     WorkflowExecuteRequest,
-    WorkflowExecuteResponse
+    WorkflowExecuteResponse,
+    WorkflowAgentAssign,
+    WorkflowAgentResponse
 )
 
 router = APIRouter(prefix="/api/v1/workflows", tags=["workflows"])
@@ -25,6 +27,11 @@ def create_workflow(workflow: WorkflowCreate, db: Session = Depends(get_db)):
     """워크플로우 생성"""
     try:
         db = next(db)
+        # 에이전트 존재 여부 확인
+        agent = db.query(Agent).filter(Agent.id == workflow.agent_id).first()
+        if not agent:
+            raise HTTPException(status_code=404, detail="Agent not found")
+
         db_workflow = Workflow(
             name=workflow.name,
             description=workflow.description,
@@ -104,4 +111,58 @@ def execute_workflow(workflow_id: uuid.UUID, request: WorkflowExecuteRequest, db
             "status": "completed",
             "result": request.input
         }
-    } 
+    }
+
+@router.post("/{workflow_id}/assign-agent", response_model=WorkflowAgentResponse)
+def assign_agent(workflow_id: uuid.UUID, assignment: WorkflowAgentAssign, db: Session = Depends(get_db)):
+    """워크플로우에 에이전트 할당"""
+    db = next(db)
+    workflow = db.query(Workflow).filter(Workflow.id == workflow_id).first()
+    if not workflow:
+        raise HTTPException(status_code=404, detail="Workflow not found")
+
+    agent = db.query(Agent).filter(Agent.id == assignment.agent_id).first()
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+
+    try:
+        workflow.agent_id = assignment.agent_id
+        db.commit()
+        db.refresh(workflow)
+        return {
+            "data": {
+                "workflow_id": workflow.id,
+                "agent_id": workflow.agent_id,
+                "status": "assigned"
+            }
+        }
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.delete("/{workflow_id}/unassign-agent", response_model=WorkflowAgentResponse)
+def unassign_agent(workflow_id: uuid.UUID, db: Session = Depends(get_db)):
+    """워크플로우에서 에이전트 해제"""
+    db = next(db)
+    workflow = db.query(Workflow).filter(Workflow.id == workflow_id).first()
+    if not workflow:
+        raise HTTPException(status_code=404, detail="Workflow not found")
+
+    if not workflow.agent_id:
+        raise HTTPException(status_code=400, detail="No agent assigned to this workflow")
+
+    try:
+        old_agent_id = workflow.agent_id
+        workflow.agent_id = None
+        db.commit()
+        db.refresh(workflow)
+        return {
+            "data": {
+                "workflow_id": workflow.id,
+                "agent_id": old_agent_id,
+                "status": "unassigned"
+            }
+        }
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e)) 

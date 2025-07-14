@@ -46,4 +46,12 @@ class WorkflowExecuteRequest(BaseModel):
 
 class WorkflowExecuteResponse(BaseModel):
     """워크플로우 실행 응답 스키마"""
+    data: Dict[str, Any]
+
+class WorkflowAgentAssign(BaseModel):
+    """워크플로우 에이전트 할당 스키마"""
+    agent_id: UUID4
+
+class WorkflowAgentResponse(BaseModel):
+    """워크플로우 에이전트 응답 스키마"""
     data: Dict[str, Any] 
