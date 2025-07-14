@@ -1,217 +1,159 @@
 """
-Agent API endpoints
+에이전트 API 엔드포인트
 """
-
-from fastapi import APIRouter, HTTPException, status
-from typing import List
 import uuid
-from datetime import datetime
+from typing import List
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 
-from schemas.agent import AgentCreate, AgentUpdate, AgentResponse
+from database.connection import get_db
+from models import Agent, MCPServer
+from schemas.agent import (
+    AgentCreate,
+    AgentUpdate,
+    AgentResponse,
+    AgentListResponse,
+    AgentMCPAssign,
+    AgentMCPResponse
+)
 from schemas.common import APIResponse
-from database.connection import get_db_cursor
-
-# 개발 환경용 mock 사용자 ID
-MOCK_USER_ID = "00000000-0000-0000-0000-000000000001"
 
 router = APIRouter(prefix="/agents", tags=["agents"])
 
 @router.get("", response_model=APIResponse[List[AgentResponse]])
-async def get_agents():
-    """사용자의 에이전트 목록 조회"""
+def get_agents(db: Session = Depends(get_db)):
+    """에이전트 목록 조회"""
     try:
-        with get_db_cursor() as cur:
-            cur.execute("""
-                SELECT id, name, description, status, created_at, updated_at
-                FROM agents
-                WHERE user_id = %s
-                ORDER BY created_at DESC
-            """, (MOCK_USER_ID,))
-            agents = cur.fetchall()
-            
-            return {
-                "success": True,
-                "data": [
-                    {
-                        "id": str(agent[0]),
-                        "name": agent[1],
-                        "description": agent[2],
-                        "status": agent[3],
-                        "created_at": agent[4],
-                        "updated_at": agent[5]
-                    }
-                    for agent in agents
-                ]
-            }
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch agents: {str(e)}"
+        agents = db.query(Agent).all()
+        return APIResponse(
+            success=True,
+            data=[
+                AgentResponse(data=agent) for agent in agents
+            ],
+            message="에이전트 목록을 성공적으로 조회했습니다."
         )
-
-@router.post("", response_model=APIResponse[AgentResponse])
-async def create_agent(agent: AgentCreate):
-    """새로운 에이전트 생성"""
-    try:
-        agent_id = str(uuid.uuid4())
-        now = datetime.utcnow()
-        
-        with get_db_cursor() as cur:
-            cur.execute("""
-                INSERT INTO agents (id, user_id, name, description, status, created_at, updated_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                RETURNING id, name, description, status, created_at, updated_at
-            """, (
-                agent_id,
-                MOCK_USER_ID,
-                agent.name,
-                agent.description,
-                "active",
-                now,
-                now
-            ))
-            
-            new_agent = cur.fetchone()
-            
-            return {
-                "success": True,
-                "data": {
-                    "id": str(new_agent[0]),
-                    "name": new_agent[1],
-                    "description": new_agent[2],
-                    "status": new_agent[3],
-                    "created_at": new_agent[4],
-                    "updated_at": new_agent[5]
-                }
-            }
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create agent: {str(e)}"
-        )
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/{agent_id}", response_model=APIResponse[AgentResponse])
-async def get_agent(agent_id: str):
-    """특정 에이전트 조회"""
-    try:
-        with get_db_cursor() as cur:
-            cur.execute("""
-                SELECT id, name, description, status, created_at, updated_at
-                FROM agents
-                WHERE id = %s AND user_id = %s
-            """, (agent_id, MOCK_USER_ID))
-            
-            agent = cur.fetchone()
-            if not agent:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Agent with id {agent_id} not found"
-                )
-            
-            return {
-                "success": True,
-                "data": {
-                    "id": str(agent[0]),
-                    "name": agent[1],
-                    "description": agent[2],
-                    "status": agent[3],
-                    "created_at": agent[4],
-                    "updated_at": agent[5]
-                }
-            }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch agent: {str(e)}"
-        )
+def get_agent(agent_id: uuid.UUID, db: Session = Depends(get_db)):
+    """에이전트 상세 조회"""
+    agent = db.query(Agent).filter(Agent.id == agent_id).first()
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+    
+    return APIResponse(
+        success=True,
+        data=AgentResponse(data=agent),
+        message="에이전트 정보를 성공적으로 조회했습니다."
+    )
 
-@router.put("/{agent_id}", response_model=APIResponse[AgentResponse])
-async def update_agent(agent_id: str, agent: AgentUpdate):
-    """에이전트 정보 업데이트"""
+@router.post("", response_model=AgentResponse, status_code=201)
+def create_agent(agent: AgentCreate, db: Session = Depends(get_db)):
+    """에이전트 생성"""
     try:
-        with get_db_cursor() as cur:
-            # 먼저 에이전트가 존재하는지 확인
-            cur.execute("""
-                SELECT id FROM agents
-                WHERE id = %s AND user_id = %s
-            """, (agent_id, MOCK_USER_ID))
-            
-            if not cur.fetchone():
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Agent with id {agent_id} not found"
-                )
-            
-            # 에이전트 정보 업데이트
-            cur.execute("""
-                UPDATE agents
-                SET name = %s,
-                    description = %s,
-                    updated_at = %s
-                WHERE id = %s AND user_id = %s
-                RETURNING id, name, description, status, created_at, updated_at
-            """, (
-                agent.name,
-                agent.description,
-                datetime.utcnow(),
-                agent_id,
-                MOCK_USER_ID
-            ))
-            
-            updated_agent = cur.fetchone()
-            
-            return {
-                "success": True,
-                "data": {
-                    "id": str(updated_agent[0]),
-                    "name": updated_agent[1],
-                    "description": updated_agent[2],
-                    "status": updated_agent[3],
-                    "created_at": updated_agent[4],
-                    "updated_at": updated_agent[5]
-                }
-            }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update agent: {str(e)}"
+        db_agent = Agent(
+            name=agent.name,
+            description=agent.description,
+            user_id=agent.user_id,
+            model=agent.model,
+            instruction=agent.instruction,
+            generate_content_config=agent.generate_content_config.dict(),
+            output_schema=agent.output_schema,
+            output_key=agent.output_key,
+            template_type=agent.template_type
         )
+        db.add(db_agent)
+        db.commit()
+        db.refresh(db_agent)
+        return {"data": db_agent}
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
 
-@router.delete("/{agent_id}", response_model=APIResponse[None])
-async def delete_agent(agent_id: str):
+@router.put("/{agent_id}", response_model=AgentResponse)
+def update_agent(agent_id: uuid.UUID, agent: AgentUpdate, db: Session = Depends(get_db)):
+    """에이전트 수정"""
+    db_agent = db.query(Agent).filter(Agent.id == agent_id).first()
+    if not db_agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+    
+    try:
+        for key, value in agent.dict(exclude_unset=True).items():
+            setattr(db_agent, key, value)
+        db.commit()
+        db.refresh(db_agent)
+        return {"data": db_agent}
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.delete("/{agent_id}", status_code=204)
+def delete_agent(agent_id: uuid.UUID, db: Session = Depends(get_db)):
     """에이전트 삭제"""
+    db_agent = db.query(Agent).filter(Agent.id == agent_id).first()
+    if not db_agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+    
     try:
-        with get_db_cursor() as cur:
-            # 먼저 에이전트가 존재하는지 확인
-            cur.execute("""
-                SELECT id FROM agents
-                WHERE id = %s AND user_id = %s
-            """, (agent_id, MOCK_USER_ID))
-            
-            if not cur.fetchone():
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Agent with id {agent_id} not found"
-                )
-            
-            # 에이전트 삭제
-            cur.execute("""
-                DELETE FROM agents
-                WHERE id = %s AND user_id = %s
-            """, (agent_id, MOCK_USER_ID))
-            
-            return {
-                "success": True,
-                "data": None
+        db.delete(db_agent)
+        db.commit()
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/{agent_id}/mcp-tools", response_model=AgentMCPResponse)
+def assign_mcp_tools(agent_id: uuid.UUID, assignment: AgentMCPAssign, db: Session = Depends(get_db)):
+    """에이전트에 MCP Tool 할당"""
+    agent = db.query(Agent).filter(Agent.id == agent_id).first()
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+
+    try:
+        # 기존 MCP Tool 연결 모두 제거
+        agent.mcp_tools = []
+        
+        # 새로운 MCP Tool 연결
+        mcp_tools = db.query(MCPServer).filter(MCPServer.id.in_(assignment.mcp_ids)).all()
+        if len(mcp_tools) != len(assignment.mcp_ids):
+            raise HTTPException(status_code=404, detail="Some MCP tools not found")
+        
+        agent.mcp_tools = mcp_tools
+        db.commit()
+        db.refresh(agent)
+        
+        return {
+            "data": {
+                "agent_id": str(agent.id),
+                "mcp_tool_ids": [str(tool.id) for tool in agent.mcp_tools],
+                "status": "assigned"
             }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete agent: {str(e)}"
-        ) 
+        }
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.delete("/{agent_id}/mcp-tools", response_model=AgentMCPResponse)
+def unassign_mcp_tools(agent_id: uuid.UUID, db: Session = Depends(get_db)):
+    """에이전트에서 모든 MCP Tool 해제"""
+    agent = db.query(Agent).filter(Agent.id == agent_id).first()
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+
+    try:
+        old_tool_ids = [str(tool.id) for tool in agent.mcp_tools]
+        agent.mcp_tools = []
+        db.commit()
+        db.refresh(agent)
+        
+        return {
+            "data": {
+                "agent_id": str(agent.id),
+                "mcp_tool_ids": old_tool_ids,
+                "status": "unassigned"
+            }
+        }
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e)) 

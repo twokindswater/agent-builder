@@ -4,17 +4,17 @@
 import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, ForeignKey, JSON, DateTime
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from database.connection import Base
+from models.base import UUIDType
 
 class Workflow(Base):
     """워크플로우 모델"""
     __tablename__ = "workflows"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    agent_id = Column(UUID(as_uuid=True), ForeignKey("agents.id"), nullable=False)
+    id = Column(UUIDType, primary_key=True, default=uuid.uuid4)
+    agent_id = Column(UUIDType, ForeignKey("agents.id"), nullable=False)
     name = Column(String, nullable=False)
     description = Column(String)
     definition = Column(JSON)

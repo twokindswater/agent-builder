@@ -14,6 +14,7 @@ class MCPServerBase(BaseModel):
 
 class MCPServerCreate(MCPServerBase):
     api_key: str = Field(..., min_length=1)
+    user_id: uuid.UUID
 
 class MCPServerUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)

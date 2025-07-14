@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
 from database.connection import close_pool
-from api.v1 import mcp, workflows
+from api.v1 import mcp, workflows, agents
 
 app = FastAPI(
     title=settings.app_name,
@@ -26,6 +26,7 @@ app.add_middleware(
 # 라우터 등록
 app.include_router(mcp.router)
 app.include_router(workflows.router)
+app.include_router(agents.router)
 
 @app.on_event("shutdown")
 async def shutdown_event():
